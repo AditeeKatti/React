@@ -15,6 +15,28 @@ const TodoListContainer = styled.div`
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
 `;
+const Task = styled.li`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+`;
+
+const TaskButton = styled.button`
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  background-color: ${(props) =>
+    props.type === 'edit' ? '#3498db' : '#e74c3c'};
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+`;
+
+const TaskText = styled.span`
+  flex-grow: 1;
+`;
 
 const TodoListText = styled.h4`
   padding: 5px;
@@ -36,6 +58,25 @@ const TodoInput = styled.input`
   padding: 10px;
   margin-right: 10px;
 `;
+const EditButton = styled.button`
+  border: none;
+  background-color: #3498db;
+  color: #fff;
+  padding: 5px 10px;
+  margin-right: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+`;
+
+const DeleteButton = styled.button`
+  border: none;
+  background-color: #e74c3c;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+`;
+
 
 const TodoButton = styled.button`
   border: none;
@@ -50,12 +91,31 @@ const TodoButton = styled.button`
 
 function TodoList() {
   const [input, setInput] = useState('');
+  const [editing, setEditing] = useState(null);
+  const [newTaskText, setNewTaskText] = useState('');
   const [tasks, setTasks] = useState([    'Wake Up',    'Toilet',    'Brush',  ]);
   const inputRef = useRef(null);
 
   const handleChange = (e) => {
     setInput(e.target.value);
   };
+
+  const handleDelete = (taskKey) => {
+    const { [taskKey]: _, ...newTasks } = tasks;
+    setTasks(newTasks);
+  };
+
+  const handleEdit = (taskKey) => {
+    setEditing(taskKey);
+    setNewTaskText(tasks[taskKey]);
+  };
+  
+  const handleSave = (taskKey) => {
+    const newTasks = { ...tasks, [taskKey]: newTaskText };
+    setTasks(newTasks);
+    setEditing(null);
+    setNewTaskText('');
+  };  
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -83,11 +143,28 @@ function TodoList() {
         />
         <TodoButton onClick={handleSubmit}> + </TodoButton>
       </TodoForm>
-      <ul>
-        {Object.keys(tasks).map((key) => (
-          <li key={key}>{tasks[key]}</li>
-        ))}
-      </ul>
+      {Object.keys(tasks).map((key) => (
+  <li key={key}>
+    {editing === key ? (
+      <>
+        <TodoInput
+          value={newTaskText}
+          onChange={(e) => setNewTaskText(e.target.value)}
+        />
+        <EditButton onClick={() => handleSave(key)}>Save</EditButton>
+      </>
+    ) : (
+      <>
+        <span>{tasks[key]}</span>
+        <div>
+          <EditButton onClick={() => handleEdit(key)}>Edit</EditButton>
+          <DeleteButton onClick={() => handleDelete(key)}>Delete</DeleteButton>
+        </div>
+      </>
+    )}
+  </li>
+))}
+
     </TodoListContainer>
   );
 }
