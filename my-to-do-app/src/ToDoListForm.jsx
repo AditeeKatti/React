@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPencilAlt, faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
 const TodoListContainer = styled.div`
@@ -8,7 +10,7 @@ const TodoListContainer = styled.div`
   flex-direction: column;
   position: relative;
   width: 300px;
-  height: 400px;
+  min-height: 400px;
   margin: 30px auto;
   padding: 20px;
   background-color: #f4d4d4;
@@ -17,25 +19,9 @@ const TodoListContainer = styled.div`
 `;
 const Task = styled.li`
   display: flex;
+  padding: 5px;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
-`;
-
-const TaskButton = styled.button`
-  border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  background-color: ${(props) =>
-    props.type === 'edit' ? '#3498db' : '#e74c3c'};
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-`;
-
-const TaskText = styled.span`
-  flex-grow: 1;
 `;
 
 const TodoListText = styled.h4`
@@ -58,6 +44,7 @@ const TodoInput = styled.input`
   padding: 10px;
   margin-right: 10px;
 `;
+
 const EditButton = styled.button`
   border: none;
   background-color: #3498db;
@@ -76,6 +63,27 @@ const DeleteButton = styled.button`
   border-radius: 5px;
   cursor: pointer;
 `;
+
+const SaveButton = styled.button`
+  border: none;
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+`;
+
+const SaveIcon = styled(FontAwesomeIcon).attrs({
+  icon: faSave,
+})``;
+
+const PencilIcon = styled(FontAwesomeIcon).attrs({
+  icon: faPencilAlt,
+})``;
+
+const TrashIcon = styled(FontAwesomeIcon).attrs({
+  icon: faTrashAlt,
+})``;
 
 
 const TodoButton = styled.button`
@@ -135,7 +143,7 @@ function TodoList() {
       <TodoListText>What's the Plan for Today?</TodoListText>
       <TodoForm>
         <TodoInput
-          placeholder="Add a todo"
+          placeholder="Add a to-do task"
           value={input}
           onChange={handleChange}
           name="text"
@@ -144,25 +152,25 @@ function TodoList() {
         <TodoButton onClick={handleSubmit}> + </TodoButton>
       </TodoForm>
       {Object.keys(tasks).map((key) => (
-  <li key={key}>
+  <Task key={key}>
     {editing === key ? (
       <>
         <TodoInput
           value={newTaskText}
           onChange={(e) => setNewTaskText(e.target.value)}
         />
-        <EditButton onClick={() => handleSave(key)}>Save</EditButton>
+        <SaveButton onClick={() => handleSave(key)}> <SaveIcon /></SaveButton>
       </>
     ) : (
       <>
         <span>{tasks[key]}</span>
         <div>
-          <EditButton onClick={() => handleEdit(key)}>Edit</EditButton>
-          <DeleteButton onClick={() => handleDelete(key)}>Delete</DeleteButton>
+          <EditButton onClick={() => handleEdit(key)}><PencilIcon /></EditButton>
+          <DeleteButton onClick={() => handleDelete(key)}><TrashIcon /></DeleteButton>
         </div>
       </>
     )}
-  </li>
+  </Task>
 ))}
 
     </TodoListContainer>
