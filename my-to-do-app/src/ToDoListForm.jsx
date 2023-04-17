@@ -138,8 +138,16 @@ function TodoList() {
     }
   };
 
+   // Get the current date and time
+   const today = new Date();
+   const formattedDate = today.toLocaleDateString();
+   const formattedTime = today.toLocaleTimeString();
+
   return (
     <TodoListContainer>
+       <div style={{ textAlign: 'center' }}>
+        <h6> Today is {formattedDate} {formattedTime}</h6>
+      </div>
       <TodoListText>What's the Plan for Today?</TodoListText>
       <TodoForm>
         <TodoInput
