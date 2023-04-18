@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faTrashAlt, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faTrashAlt, faSave, faCheck, faRefresh } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
 const TodoListContainer = styled.div`
@@ -17,7 +17,7 @@ const TodoListContainer = styled.div`
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
 `;
-const Task = styled.li`
+const TaskLayout = styled.li`
   display: flex;
   padding: 5px;
   align-items: center;
@@ -73,6 +73,15 @@ const SaveButton = styled.button`
   cursor: pointer;
 `;
 
+const CompleteButton = styled.button`
+  border: none;
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+`;
+
 const SaveIcon = styled(FontAwesomeIcon).attrs({
   icon: faSave,
 })``;
@@ -85,6 +94,13 @@ const TrashIcon = styled(FontAwesomeIcon).attrs({
   icon: faTrashAlt,
 })``;
 
+const CompletedIcon = styled(FontAwesomeIcon).attrs({
+   icon: faCheck,
+ })``
+
+ const UndoIcon = styled(FontAwesomeIcon).attrs({
+  icon: faRefresh,
+})``
 
 const TodoButton = styled.button`
   border: none;
@@ -101,7 +117,12 @@ function TodoList() {
   const [input, setInput] = useState('');
   const [editing, setEditing] = useState(null);
   const [newTaskText, setNewTaskText] = useState('');
-  const [tasks, setTasks] = useState([    'Wake Up',    'Toilet',    'Brush',  ]);
+  const [completedTasks, setCompletedTasks] = useState({});
+  const [tasks, setTasks] = useState([
+    { id: 'task1', text: 'Wake Up', completed: false },
+    { id: 'task2', text: 'Toilet', completed: false },
+    { id: 'task3', text: 'Brush', completed: false },
+  ]);
   const inputRef = useRef(null);
 
   const handleChange = (e) => {
@@ -117,31 +138,43 @@ function TodoList() {
     setEditing(taskKey);
     setNewTaskText(tasks[taskKey]);
   };
-  
+
   const handleSave = (taskKey) => {
-    const newTasks = { ...tasks, [taskKey]: newTaskText };
-    setTasks(newTasks);
+    const updatedTasks = tasks.map((task) =>
+      task.id === taskKey ? { ...task, text: newTaskText } : task
+    );
+    setTasks(updatedTasks);
     setEditing(null);
     setNewTaskText('');
-  };  
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const newTodo = input.trim();
     if (newTodo.length > 0) {
-      const newTasks = {
-        ...tasks,
-        [`task${Object.keys(tasks).length + 1}`]: newTodo,
-      };
+      const newTask = { id: `task${tasks.length + 1}`, text: newTodo, completed: false };
+      const newTasks = [...tasks, newTask];
       setInput('');
       setTasks(newTasks);
     }
   };
 
-   // Get the current date and time
-   const today = new Date();
-   const formattedDate = today.toLocaleDateString();
-   const formattedTime = today.toLocaleTimeString();
+  function handleComplete(taskId) {
+    setCompletedTasks((prevCompletedTasks) => {
+      const newCompletedTasks = { ...prevCompletedTasks };
+      if (newCompletedTasks[taskId]) {
+        delete newCompletedTasks[taskId];
+      } else {
+        newCompletedTasks[taskId] = true;
+      }
+      return newCompletedTasks;
+    });
+  }
+
+  // Get the current date and time
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString();
+  const formattedTime = today.toLocaleTimeString();
 
   return (
     <TodoListContainer>
@@ -159,30 +192,39 @@ function TodoList() {
         />
         <TodoButton onClick={handleSubmit}> + </TodoButton>
       </TodoForm>
-      {Object.keys(tasks).map((key) => (
-  <Task key={key}>
-    {editing === key ? (
-      <>
-        <TodoInput
-          value={newTaskText}
-          onChange={(e) => setNewTaskText(e.target.value)}
-        />
-        <SaveButton onClick={() => handleSave(key)}> <SaveIcon /></SaveButton>
-      </>
-    ) : (
-      <>
-        <span>{tasks[key]}</span>
-        <div>
-          <EditButton onClick={() => handleEdit(key)}><PencilIcon /></EditButton>
-          <DeleteButton onClick={() => handleDelete(key)}><TrashIcon /></DeleteButton>
-        </div>
-      </>
-    )}
-  </Task>
-))}
-
+      <ul>
+        {Object.entries(tasks).map(([taskId, task]) => (
+          <TaskLayout key={taskId}>
+            {editing === taskId ? (
+              <>
+                <TodoInput value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} />
+                <SaveButton onClick={() => handleSave(taskId)}>
+                  <SaveIcon />
+                </SaveButton>
+              </>
+            ) : (
+              <>
+                <TodoListText style={{ textDecoration: completedTasks[taskId] ? 'line-through' : 'none' }}>
+                  {task.text}
+                </TodoListText>
+                <div>
+                  <EditButton onClick={() => handleEdit(taskId)}>
+                    <PencilIcon />
+                  </EditButton>
+                  <DeleteButton onClick={() => handleDelete(taskId)}>
+                    <TrashIcon />
+                  </DeleteButton>
+                  <CompleteButton onClick={() => handleComplete(taskId)}>
+                    {completedTasks[taskId] ? <UndoIcon/> : <CompletedIcon/>}
+                  </CompleteButton>
+                </div>
+              </>
+            )}
+          </TaskLayout>
+        ))}
+      </ul>
     </TodoListContainer>
   );
 }
 
-export default TodoList;
+export default TodoList
