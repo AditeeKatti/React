@@ -117,7 +117,7 @@ function TodoList() {
   const [input, setInput] = useState('');
   const [editing, setEditing] = useState(null);
   const [newTaskText, setNewTaskText] = useState('');
-  const [completedTasks, setCompletedTasks] = useState({});
+  const [completedTasks, setCompletedTasks] = useState([]);
   const [tasks, setTasks] = useState([
     { id: 'task1', text: 'Wake Up', completed: false },
     { id: 'task2', text: 'Toilet', completed: false },
@@ -129,10 +129,11 @@ function TodoList() {
     setInput(e.target.value);
   };
 
-  const handleDelete = (taskKey) => {
-    const { [taskKey]: _, ...newTasks } = tasks;
-    setTasks(newTasks);
+  const handleDelete = (taskId) => {
+    const updatedTasks = tasks.filter((task) => task.id !== taskId);
+    setTasks(updatedTasks);
   };
+  
 
   const handleEdit = (taskKey) => {
     setEditing(taskKey);
@@ -193,35 +194,36 @@ function TodoList() {
         <TodoButton onClick={handleSubmit}> + </TodoButton>
       </TodoForm>
       <ul>
-        {Object.entries(tasks).map(([taskId, task]) => (
-          <TaskLayout key={taskId}>
-            {editing === taskId ? (
-              <>
-                <TodoInput value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} />
-                <SaveButton onClick={() => handleSave(taskId)}>
-                  <SaveIcon />
-                </SaveButton>
-              </>
-            ) : (
-              <>
-                <TodoListText style={{ textDecoration: completedTasks[taskId] ? 'line-through' : 'none' }}>
-                  {task.text}
-                </TodoListText>
-                <div>
-                  <EditButton onClick={() => handleEdit(taskId)}>
-                    <PencilIcon />
-                  </EditButton>
-                  <DeleteButton onClick={() => handleDelete(taskId)}>
-                    <TrashIcon />
-                  </DeleteButton>
-                  <CompleteButton onClick={() => handleComplete(taskId)}>
-                    {completedTasks[taskId] ? <UndoIcon/> : <CompletedIcon/>}
-                  </CompleteButton>
-                </div>
-              </>
-            )}
-          </TaskLayout>
-        ))}
+      {tasks.map((task) => (
+  <TaskLayout key={task.id}>
+    {editing === task.id ? (
+      <>
+        <TodoInput value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} />
+        <SaveButton onClick={() => handleSave(task.id)}>
+          <SaveIcon />
+        </SaveButton>
+      </>
+    ) : (
+      <>
+        <TodoListText style={{ textDecoration: completedTasks[task.id] ? 'line-through' : 'none' }}>
+          {task.text}
+        </TodoListText>
+        <div>
+          <EditButton onClick={() => handleEdit(task.id)}>
+            <PencilIcon />
+          </EditButton>
+          <DeleteButton onClick={() => handleDelete(task.id)}>
+            <TrashIcon />
+          </DeleteButton>
+          <CompleteButton onClick={() => handleComplete(task.id)}>
+            {completedTasks[task.id] ? <UndoIcon/> : <CompletedIcon/>}
+          </CompleteButton>
+        </div>
+      </>
+    )}
+  </TaskLayout>
+))}
+
       </ul>
     </TodoListContainer>
   );
