@@ -1,12 +1,9 @@
 require('dotenv').config();
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
-const uri = process.env.MONGODB_URI;
+const uri ='mongodb://localhost:27017/mytodoapp';
 
-const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+const client = new MongoClient(uri);
 
 client.connect(err => {
   if (err) {
@@ -14,8 +11,9 @@ client.connect(err => {
     process.exit(1);
   }
   console.log('Connected to MongoDB');
-
 });
+
+module.exports = client;
 
 //  app.get('/api/todos', async (req, res) => {
 //     const todos = await client.db().collection('todos').find().toArray();

@@ -1,9 +1,6 @@
-const { MongoClient } = require('mongodb');
-
-const uri = 'mongodb+srv://Aditee:happy@myapp?retryWrites=true&w=majority';
+const client = require('./server');
 
 async function connect() {
-  const client = new MongoClient(uri);
   await client.connect();
   const db = client.db('<database>');
   const tasks = db.collection('tasks');
@@ -11,3 +8,4 @@ async function connect() {
 }
 
 module.exports = connect;
+
